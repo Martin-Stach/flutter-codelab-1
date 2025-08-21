@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 3:
-        page = MultiTouchPairingScreen();
+        page = MultitouchPairingScreen();
         break;
       default:
         throw UnimplementedError('No widget for $stelectedIndex');
