@@ -1,6 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'widgets/multitouch_pairing_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -50,20 +52,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late GoogleMapController mapController;
+  final LatLng _center = const LatLng(53.54, 10.0);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
   var stelectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-
     Widget page;
     switch (stelectedIndex) {
       case 0:
         page = GeneratorPage();
         break;
       case 1:
-        page = FavoritesPage(
+        page = FavoritesPage();
+        break;
+      case 2:
+        page = GoogleMap(
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(target: _center, zoom: 11.0),
         );
+        break;
+      case 3:
+        page = MultiTouchPairingScreen();
+        break;
       default:
         throw UnimplementedError('No widget for $stelectedIndex');
     }
@@ -85,6 +101,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.favorite),
                       label: Text('Favorites'),
                     ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.map),
+                      label: Text("Google Maps"),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.touch_app),
+                      label: Text('Pairing'),
+                    ),
                   ],
                   selectedIndex: stelectedIndex,
                   onDestinationSelected: (value) {
@@ -104,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         );
-      }
+      },
     );
   }
 }
@@ -165,16 +189,19 @@ class FavoritesPage extends StatelessWidget {
     var favorites = appState.favorites;
 
     if (favorites.isEmpty) {
-      return Center(child: Text("No favorites yet."),);
+      return Center(child: Text("No favorites yet."));
     }
 
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
-        child: Text("You have " '${favorites.length} favorites:'),
+          child: Text(
+            "You have "
+            '${favorites.length} favorites:',
+          ),
         ),
-        for (var pair in favorites) 
+        for (var pair in favorites)
           ListTile(
             leading: Icon(Icons.favorite),
             title: Text(pair.asCamelCase),
