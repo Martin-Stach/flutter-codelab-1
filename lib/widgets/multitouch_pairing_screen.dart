@@ -1,4 +1,3 @@
-// File: lib/widgets/multitouch_pairing_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -42,7 +41,8 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
   int pairColorIndex = 0;
   bool isPairing = false;
   bool pairingCompleted = false;
-  int countdown = 1;
+  final int countdown = 1;
+  final int minTouches = 4; // Minimum touches required to start pairing
   bool _countdownActive = false; // Track if countdown is currently running
   
   late AnimationController _pulseController;
@@ -95,7 +95,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
     
     // Countdown animation
     _countdownController = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: Duration(seconds: countdown),
       vsync: this,
     );
   }
@@ -139,7 +139,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
   }
 
   void _handleTouchCountChange() {
-    if (activeTouches.length >= 2 && activeTouches.length % 2 == 0) {
+    if (activeTouches.length >= 2 && activeTouches.length % 2 == 0 && activeTouches.length >= minTouches) {
       // We have an even number of touches (2 or more)
       if (isPairing) {
         // Already pairing, restart the countdown
@@ -165,7 +165,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
   void _startPairingCountdown() {
     setState(() {
       isPairing = true;
-      countdown = 1;
+      // countdown = 1;
     });
     
     // Start pulse animation
@@ -181,7 +181,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
     _pulseController.reset();
     
     setState(() {
-      countdown = 1;
+      // countdown = 1;
     });
     
     // Start pulse animation again
@@ -194,7 +194,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
   void _stopPairingCountdown() {
     setState(() {
       isPairing = false;
-      countdown = 1;
+      // countdown = 1;
     });
     
     _pulseController.stop();
@@ -204,11 +204,11 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
   void _runCountdown() async {
     _countdownActive = true;
     
-    for (int i = 3; i > 0; i--) {
+    for (int i = countdown; i > 0; i--) {
       if (!mounted || !isPairing || !_countdownActive) return;
       
       setState(() {
-        countdown = i;
+        // countdown = i;
       });
       
       _countdownController.reset();
@@ -279,7 +279,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
     setState(() {
       isPairing = false;
       pairingCompleted = false;
-      countdown = 3;
+      // countdown = 3;
     });
     _pulseController.stop();
     _pulseController.reset();
@@ -294,7 +294,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
       pairColorIndex = 0;
       isPairing = false;
       pairingCompleted = false;
-      countdown = 3;
+      // countdown = 3;
     });
     _pulseController.stop();
     _pulseController.reset();
@@ -351,7 +351,7 @@ class _MultitouchPairingScreenState extends State<MultitouchPairingScreen>
         onPointerMove: _updateTouches,
         onPointerUp: _updateTouches,
         onPointerCancel: _updateTouches,
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           height: double.infinity,
           child: CustomPaint(
@@ -508,7 +508,7 @@ class TouchPainter extends CustomPainter {
     // Draw info text
     String statusText;
     if (isPairing) {
-      statusText = 'Pairing in ${countdown}... | Touches: ${touches.length}';
+      statusText = 'Pairing in $countdown... | Touches: ${touches.length}';
     } else if (pairingCompleted) {
       statusText = 'Paired! | Touches: ${touches.length} | Pairs: ${pairs.length}';
     } else {
